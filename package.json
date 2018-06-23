@@ -1,5 +1,8 @@
 {
   "name": "item_cart",
   "private": true,
-  "dependencies": {}
+  "dependencies": {},
+  "devDependencies": {
+    "babel-plugin-transform-async-to-generator": "6.24.1"
+  }
 }
