@@ -21,8 +21,33 @@ class NewItem extends React.Component {
   }
 
   handleSubmit(event) {
-    console.log(this.state.name + ': ' + this.state.description)
     event.preventDefault();
+    const name = this.state.name
+    const description = this.state.description
+    console.log(name + ': ' + description)
+    if (name == '' || description == '') {
+      alert('Neither name nor description can be blank');
+    } else {
+      // must use this here, since createItem is defined on the component, not within handleSubmit
+      this.createItem({
+        item:
+        {
+          name: name,
+          description: description
+        }
+      });
+    }
+  }
+
+  createItem(opts) {
+    fetch('api/v1/items', {
+      method: 'post',
+      // must include headers, or it won't work
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(opts)
+    })
+      .then((res) => res.json())
+      .then((res_json) => console.log('It worked!', res_json));
   }
 
   render() {
