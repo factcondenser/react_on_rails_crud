@@ -7,8 +7,9 @@ class Body extends React.Component {
       description: ''
     };
 
-    this.handleSubmit = this.handleSubmit.bind(this);
     this.handleChange = this.handleChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleDelete = this.handleDelete.bind(this);
   }
 
   // TODO: requires babel-polyfill or some config with babel and/or webpack
@@ -30,8 +31,8 @@ class Body extends React.Component {
 
   handleChange(event) {
     const target = event.target;
-    const value = target.value;
     const fieldName = target.name;
+    const value = target.value;
 
     this.setState({
       [fieldName]: value.toUpperCase()
@@ -66,16 +67,44 @@ class Body extends React.Component {
     })
       .then((res) => res.json())
       .then((item) => {
-        console.log('It worked!', item);
+        console.log('Item successfully created!', item);
+        // TODO: use prevState here??
         const newState = this.state.items.concat(item);
-        this.setState({ items: newState })
+        this.setState({ items: newState });
+      });
+  }
+
+  handleDelete(id) {
+    console.log(`Destroy item ${id}`);
+    this.destroyItem(id);
+  }
+
+  destroyItem(id) {
+    fetch(`api/v1/items/${id}`, {
+      method: 'delete'
+    })
+      .then((res) => {
+        if (res.ok) {
+          console.log(`Item ${id} successfully destroyed!`);
+          // TODO: use prevState here??
+          // const newState = this.state.items.splice(id, 1);
+          const newState = this.state.items.filter((item) => {
+            return item.id != id
+          });
+          this.setState({ items: newState });
+        } else {
+          console.log(`Network error occurred.`)
+        }
       });
   }
 
   render() {
     return (
       <div>
-        <AllItems items={this.state.items} />
+        <AllItems
+          items={this.state.items}
+          handleDelete={this.handleDelete}
+        />
         <NewItem
           handleChange={this.handleChange}
           handleSubmit={this.handleSubmit}

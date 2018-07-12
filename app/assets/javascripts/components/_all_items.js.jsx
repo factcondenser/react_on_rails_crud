@@ -1,6 +1,11 @@
 class AllItems extends React.Component {
   constructor(props) {
     super(props);
+    // this.handleDelete = this.handleDelete.bind(this);
+  }
+
+  handleDelete(id) {
+    this.props.handleDelete(id);
   }
 
   render() {
@@ -9,6 +14,11 @@ class AllItems extends React.Component {
         <div key={item.id}>
           <h3>{item.name}</h3>
           <p>{item.description}</p>
+          <button
+            onClick={this.handleDelete.bind(this, item.id)}
+          >
+            Delete
+          </button>
         </div>
       );
     });
