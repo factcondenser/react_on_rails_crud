@@ -8,8 +8,9 @@ class Body extends React.Component {
     };
 
     this.handleChange = this.handleChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
-    this.handleDelete = this.handleDelete.bind(this);
+    this.handleCreate = this.handleCreate.bind(this);
+    this.handleUpdate = this.handleUpdate.bind(this);
+    this.handleDestroy = this.handleDestroy.bind(this);
   }
 
   // TODO: requires babel-polyfill or some config with babel and/or webpack
@@ -39,7 +40,7 @@ class Body extends React.Component {
     });
   }
 
-  handleSubmit(event) {
+  handleCreate(event) {
     event.preventDefault();
     const name = this.state.name
     const description = this.state.description
@@ -47,7 +48,8 @@ class Body extends React.Component {
     if (name == '' || description == '') {
       alert('Neither name nor description can be blank');
     } else {
-      // must use this here, since createItem is defined on the component, not within handleSubmit
+      // must use 'this' here b/c createItem is defined on the component,
+      // not within handleCreate
       this.createItem({
         item:
         {
@@ -68,13 +70,57 @@ class Body extends React.Component {
       .then((res) => res.json())
       .then((item) => {
         console.log('Item successfully created!', item);
-        // TODO: use prevState here??
-        const newState = this.state.items.concat(item);
-        this.setState({ items: newState });
+        // WRONG - passing an object
+        // const newState = this.state.items.concat(item);
+        // this.setState({
+        //   items: newState,
+        //   name: '',
+        //   description: ''
+        // });
+        // CORRECT - passing a function with prevState
+        this.setState(
+          (prevState, props) => ({
+            items: prevState.items.concat(item),
+            name: '',
+            description: ''
+          })
+        );
       });
   }
 
-  handleDelete(id) {
+  handleUpdate(item) {
+    console.log('handle update called');
+    console.log(item);
+    console.log(`Update item ${item.id}`);
+    if (item.name == '' || item.description == '') {
+      alert('Neither name nor description can be blank');
+    } else {
+      // must use this here, since createItem is defined on the component, not within handleCreate
+      this.updateItem({ item: item });
+    }
+  }
+
+  updateItem(opts) {
+    const id = opts.item.id
+    fetch(`api/v1/items/${id}`, {
+      method: 'put',
+      // must include headers, or it won't work
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(opts)
+    })
+      .then((res) => res.json())
+      .then((item) => {
+        console.log(`Item ${id} successfully updated!`);
+        this.setState(function(prevState, props) {
+          let newItems = prevState.items.slice();
+          const index = newItems.findIndex((i) => (i.id == item.id));
+          newItems[index] = item;
+          return { items: newItems }
+        });
+      });
+  }
+
+  handleDestroy(id) {
     console.log(`Destroy item ${id}`);
     this.destroyItem(id);
   }
@@ -86,14 +132,15 @@ class Body extends React.Component {
       .then((res) => {
         if (res.ok) {
           console.log(`Item ${id} successfully destroyed!`);
-          // TODO: use prevState here??
-          // const newState = this.state.items.splice(id, 1);
-          const newState = this.state.items.filter((item) => {
-            return item.id != id
-          });
-          this.setState({ items: newState });
+          this.setState(
+            (prevState, props) => ({
+              items: prevState.items.filter((item) => {
+                return item.id != id
+              })
+            })
+          );
         } else {
-          console.log(`Network error occurred.`)
+          console.log(`Network error occurred.`);
         }
       });
   }
@@ -103,11 +150,14 @@ class Body extends React.Component {
       <div>
         <AllItems
           items={this.state.items}
-          handleDelete={this.handleDelete}
+          handleUpdate={this.handleUpdate}
+          handleDestroy={this.handleDestroy}
         />
         <NewItem
+          name={this.state.name}
+          description={this.state.description}
           handleChange={this.handleChange}
-          handleSubmit={this.handleSubmit}
+          handleSubmit={this.handleCreate}
         />
       </div>
     );
