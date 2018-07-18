@@ -23,7 +23,6 @@ class Item extends React.Component {
 
   handleEdit(event) {
     event.preventDefault();
-    console.log('edit clicked');
     if (this.state.editable) {
       const id = this.props.item.id;
       const name = this.state.name;
@@ -33,8 +32,6 @@ class Item extends React.Component {
         name: name,
         description: description
       }
-      console.log(item);
-      console.log('about to call handle update');
       this.handleUpdate(item);
     }
     this.setState(
@@ -52,7 +49,6 @@ class Item extends React.Component {
 
   render() {
     const editMode = this.state.editable
-    // const itemDisplay =
     return (
       editMode ?
         <ItemForm

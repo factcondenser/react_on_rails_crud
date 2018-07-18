@@ -44,7 +44,6 @@ class Body extends React.Component {
     event.preventDefault();
     const name = this.state.name
     const description = this.state.description
-    console.log(name + ': ' + description)
     if (name == '' || description == '') {
       alert('Neither name nor description can be blank');
     } else {
@@ -69,7 +68,7 @@ class Body extends React.Component {
     })
       .then((res) => res.json())
       .then((item) => {
-        console.log('Item successfully created!', item);
+        console.log('Item successfully created!');
         // WRONG - passing an object
         // const newState = this.state.items.concat(item);
         // this.setState({
@@ -89,8 +88,6 @@ class Body extends React.Component {
   }
 
   handleUpdate(item) {
-    console.log('handle update called');
-    console.log(item);
     console.log(`Update item ${item.id}`);
     if (item.name == '' || item.description == '') {
       alert('Neither name nor description can be blank');
